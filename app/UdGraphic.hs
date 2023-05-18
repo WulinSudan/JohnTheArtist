@@ -6,12 +6,29 @@ module UdGraphic (
     where
 
 import qualified Graphics.Rendering.OpenGL as GL
-import Graphics.UI.GLUT hiding (Angle)
-import Data.IORef
-import Data.List
+import Graphics.UI.GLUT
+    ( mainLoop,
+      displayCallback,
+      reshapeCallback,
+      getArgsAndInitialize,
+      initialDisplayMode,
+      initialWindowSize,
+      createWindow,
+      swapBuffers,
+      loadIdentity,
+      viewport,
+      clear,
+      DisplayMode(DoubleBuffered),
+      Position(Position),
+      Size(..),
+      ClearBuffer(ColorBuffer),
+      HasSetter(($=)) )
+import Data.IORef ()
+import Data.List ()
 import Control.Monad( liftM, liftM2, liftM3 )
-import System.Random
+import System.Random ()
 import Test.QuickCheck
+    ( Arbitrary(arbitrary), elements, oneof, sized )
 
 infixr 5 :#:
 
@@ -137,7 +154,8 @@ type Angle     = Float
 type Distancia = Float
 data Comanda   = Avança Distancia
                | Gira Angle
-               | Comanda :#: Comanda
+               | Para
+               | Comanda :#: Comanda deriving Show
 
 
 -- Problema 8
