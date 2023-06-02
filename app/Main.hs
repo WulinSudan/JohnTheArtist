@@ -1,7 +1,8 @@
 module Main where
 
 import Artist
-import UdGraphic ( Angle, Comanda(..), Distancia )
+import UdGraphic
+
 
 main :: IO ()
 main = putStrLn "Hello, Haskell!"

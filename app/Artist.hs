@@ -3,6 +3,7 @@ module Artist where
 import UdGraphic ( Angle, Comanda(..), Distancia )
 import Test.QuickCheck ()
 import Debug.Trace ()
+import Graphics.Rendering.OpenGL (VariableType(Bool), PixelInternalFormat (CompressedLuminanceAlpha))
 
 -- Problema 1
 
@@ -14,6 +15,7 @@ separa (c1 :#: c2) = separa c1 ++ separa c2
 
 -- >>> separa  (Avança 3 :#: Gira 4 :#: Avança 7 :#: Para)
 -- [Avança 3.0,Gira 4.0,Avança 7.0]
+
 
 -- >>> separa (((Para :#: Avança 3) :#: Gira 4) :#: Avança 7)
 -- [Avança 3.0,Gira 4.0,Avança 7.0]
@@ -130,12 +132,51 @@ espiral distInicial numVoltes distIncremento angle = construirEspiral distInicia
 -- >>> espiral 30 4 5 30
 -- (((Para :#: (Avança 30.0 :#: Gira 30.0)) :#: (Avança 35.0 :#: Gira 30.0)) :#: (Avança 40.0 :#: Gira 30.0)) :#: (Avança 45.0 :#: Gira 30.0)
 
-
-
--- Problema 9
+-- Problema 9 
 
 optimitza :: Comanda -> Comanda
-optimitza = undefined
+optimitza comanda = ajunta(reverse (tratar (separa comanda) [])) 
+
+  where
+    tratar :: [Comanda] -> [Comanda] -> [Comanda]
+    tratar [] resultados = resultados
+    tratar (c:cs) resultados
+      | esZero c = tratar cs resultados
+      | existeComanda c resultados = tratar cs (modificarComanda c resultados)
+      | otherwise = tratar cs (c:resultados)
+
+    existeComanda :: Comanda -> [Comanda] -> Bool
+    existeComanda _ [] = False
+    existeComanda c rs = mateixaComanda c (head rs)
+
+    modificarComanda :: Comanda -> [Comanda] -> [Comanda]
+    modificarComanda _ [] = []
+    modificarComanda c (r:rs)
+      | mateixaComanda c r = if esZero (sumarComandas c r) then rs else sumarComandas c r : rs
+      | otherwise = r : modificarComanda c rs
+
+
+    esZero :: Comanda -> Bool
+    esZero (Avança 0) = True
+    esZero (Gira 0) = True
+    esZero _ = False
+
+    mateixaComanda :: Comanda -> Comanda -> Bool
+    mateixaComanda (Avança _) (Avança _) = True
+    mateixaComanda (Gira _) (Gira _) = True
+    mateixaComanda _ _ = False
+
+    sumarComandas :: Comanda -> Comanda -> Comanda
+    sumarComandas (Avança x) (Avança y) = Avança (x + y)
+    sumarComandas (Gira x) (Gira y) = Gira (x + y)
+    sumarComandas _ _ = Para
+
+-- >>> optimitza (Gira 10 :#: Gira(-10) :#: Para :#:Avança 20 :#: Avança 30)
+-- Avança 50.0 :#: Para
+
+-- >>> optimitza (Avança 10 :#: Para :#: Avança 20 :#: Gira 35 :#: Avança 0 :#: Gira 15 :#: Gira (-50))
+-- Avança 30.0 :#: Para
+
 
 -- Problema 10
 

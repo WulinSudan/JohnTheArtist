@@ -161,8 +161,40 @@ data Comanda   = Avança Distancia
 -- Problema 8
 -- Pas de comandes a lines a pintar per GL graphics
 
+execute' :: Comanda -> Pnt -> Angle -> Llapis -> [Ln] -> ([Ln], Pnt, Angle)
+execute' (Avança dst) pnt angle llapis lines =
+  let newPnt = pnt + vectorDesplaçament angle dst
+      newLine = Ln llapis pnt newPnt
+  in (newLine : lines, newPnt, angle)
+
+execute' (Gira angle') pnt currAngle llapis lines =
+  let newAngle = currAngle + angle'
+  in (lines, pnt, newAngle)
+
+execute' (c1 :#: c2) pnt angle llapis lines =
+  let (lines1, pnt1, angle1) = execute' c1 pnt angle llapis lines
+      (lines2, pnt2, angle2) = execute' c2 pnt1 angle1 llapis lines1
+  in (lines2, pnt2, angle2)
+
+execute' Para pnt angle llapis lines = (lines, pnt, angle)
+
+vectorDesplaçament :: Angle -> Distancia -> Pnt
+vectorDesplaçament angle dst = Pnt (dst * cos (-rads)) (dst * sin (-rads))
+  where rads = degToRad angle
+
+-- Graus a radians 
+degToRad :: Floating a => a -> a
+degToRad deg = deg * pi / 180
+
+-- Modifica també la funció execute per treure els resultats correctament:
+
 execute :: Comanda -> [Ln]
-execute c  =  undefined
+execute c = let (lines, _, _) = execute' c (Pnt 0 0) 0 negre []
+            in reverse lines
+
+-- >>> execute $ (Avança 30 :#: Para :#: Gira 10) :#: Avança 20
+-- [Ln (Color' 0.0 0.0 0.0) (Pnt 0.0 0.0) (Pnt 30.0 0.0),Ln (Color' 0.0 0.0 0.0) (Pnt 30.0 0.0) (Pnt 49.696156 (-3.4729638))]
+
 
 
 -- Rescales all points in a list of lines
