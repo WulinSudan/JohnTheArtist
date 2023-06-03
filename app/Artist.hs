@@ -1,6 +1,6 @@
 module Artist where
 
-import UdGraphic ( Angle, Comanda(..), Distancia )
+import UdGraphic (Angle, Comanda(..), Distancia)
 import Test.QuickCheck ()
 import Debug.Trace ()
 import Graphics.Rendering.OpenGL (VariableType(Bool), PixelInternalFormat (CompressedLuminanceAlpha))
@@ -180,8 +180,22 @@ optimitza comanda = ajunta(reverse (tratar (separa comanda) []))
 
 -- Problema 10
 
-triangle :: Int -> Comanda
-triangle = undefined
+triangle :: Int -> String
+triangle iterations = applyRules iterations "+f"
+  where
+    applyRules :: Int -> String -> String
+    applyRules 0 pattern = pattern
+    applyRules n pattern = applyRules (n-1) (replaceRules pattern)
+
+    replaceRules :: String -> String
+    replaceRules [] = []
+    replaceRules (x:xs)
+      | x == 'f' = "f+f-f-f+f" ++ replaceRules xs
+      | otherwise = x : replaceRules xs
+
+-- >>>triangle 3
+-- "+f+f-f-f+f+f+f-f-f+f-f+f-f-f+f-f+f-f-f+f+f+f-f-f+f+f+f-f-f+f+f+f-f-f+f-f+f-f-f+f-f+f-f-f+f+f+f-f-f+f-f+f-f-f+f+f+f-f-f+f-f+f-f-f+f-f+f-f-f+f+f+f-f-f+f-f+f-f-f+f+f+f-f-f+f-f+f-f-f+f-f+f-f-f+f+f+f-f-f+f+f+f-f-f+f+f+f-f-f+f-f+f-f-f+f-f+f-f-f+f+f+f-f-f+f"
+
 
 -- Problema 11
 
@@ -191,14 +205,43 @@ fulla = undefined
 -- Problema 12
 
 hilbert :: Int -> Comanda
-hilbert = undefined
+hilbert 0 = Avança 0  -- Caso base, no se realiza ninguna acción
+hilbert n = reescribe "l" n
+  where
+    reescribe :: String -> Int -> Comanda
+    reescribe [] _ = Para
+    reescribe (x:xs) k
+      | x == 'l'  = Gira 90 :#: reescribe "-rf+lfl+fr-" (k-1) :#: Gira (-90)
+      | x == 'r'  = Gira (-90) :#: reescribe "+lf-rfr-fl+" (k-1) :#: Gira 90
+      | x == '+'  = Gira 90 :#: reescribe xs k
+      | x == '-'  = Gira (-90) :#: reescribe xs k
+      | otherwise = reescribe xs k
+
 
 -- Problema 13
 
 fletxa :: Int -> Comanda
-fletxa = undefined
+fletxa 0 = Avança 0  -- Caso base, no se realiza ninguna acción
+fletxa n = reescribe "f" n
+  where
+    reescribe :: String -> Int -> Comanda
+    reescribe [] _ = Para
+    reescribe (x:xs) k
+      | x == 'f'  = Gira 60 :#: reescribe "g+f+g" (k-1) :#: Gira (-60)
+      | x == 'g'  = Gira (-60) :#: reescribe "f-g-f" (k-1) :#: Gira 60
+      | otherwise = reescribe xs k
+
 
 -- Problema 14
 
 branca :: Int -> Comanda
-branca = undefined
+branca 0 = Avança 0  -- Caso base, no se realiza ninguna acción
+branca n = reescribe "g" n
+  where
+    reescribe :: String -> Int -> Comanda
+    reescribe [] _ = Para
+    reescribe (x:xs) k
+      | x == 'g'  = Gira 22.5 :#: Avança 0 :#: reescribe "f-[[g]+g]+f[+fg]-g" (k-1) :#: Gira (-22.5)
+      | x == 'f'  = Gira 22.5 :#: Gira 22.5 :#: reescribe "ff" (k-1) :#: Gira (-22.5) :#: Gira (-22.5)
+      | otherwise = reescribe xs k
+

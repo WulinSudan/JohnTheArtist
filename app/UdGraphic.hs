@@ -150,14 +150,17 @@ toVertex (Pnt x y)  =  GL.vertex $ GL.Vertex3
 
 -- Definició de les comandes per moure el llapis
 
+                
 type Angle     = Float
 type Distancia = Float
 data Comanda   = Avança Distancia
                | Gira Angle
                | Para
-               | Comanda :#: Comanda deriving Show
+               | Comanda :#: Comanda
+               | CanviarColor Llapis 
+               | Branca Comanda deriving Show
 
-
+  
 -- Problema 8
 -- Pas de comandes a lines a pintar per GL graphics
 
